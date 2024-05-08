@@ -24,10 +24,10 @@ enum Property {
 
 struct CharacterProperty {
     // Basic
-    int hp = 0;
-    int attack = 0;
-    int defense = 0;
-    int speed = 0;
+    int hp = 100;
+    int attack = 100;
+    int defense = 100;
+    int speed = 100;
     int weakness = 0;
     // Advance
     float criticalRate;
@@ -53,8 +53,7 @@ struct CharacterProperty {
     float quantumResist;
     float imaginaryDamage;
     float imaginaryResist;
-    CharacterProperty operator+(const CharacterProperty& b)
-    {
+    CharacterProperty operator+(const CharacterProperty& b) {
         CharacterProperty result;
         add(hp);
         add(attack);
@@ -87,8 +86,7 @@ struct CharacterProperty {
         add(imaginaryDamage);
         return result;
     }
-    CharacterProperty operator*(const CharacterProperty& b)
-    {
+    CharacterProperty operator*(const CharacterProperty& b) {
         CharacterProperty result;
         mult(hp);
         mult(attack);
@@ -124,21 +122,14 @@ struct CharacterProperty {
 };
 
 struct Relic {
-    enum RelicPlace {
-        HEAD,
-        HAND,
-        BODY,
-        FEET,
-        BALL,
-        STRING
-    };
+    enum RelicPlace { HEAD, HAND, BODY, FEET, BALL, STRING };
     int exp;
     int level;
     CharacterProperty enhance;
 };
 
 class LightCone {
-public:
+   public:
     int lightCoreGlobalId;
     int exp;
     int level;
@@ -150,15 +141,12 @@ public:
 };
 
 struct Buff {
-    enum BuffType {
-        BUFF,
-        DEBUFF
-    };
+    enum BuffType { BUFF, DEBUFF };
     bool isVisible;
     bool isLong;
     BuffType type;
     int life;
-    void update() { }
+    void update() {}
 };
 
 struct CharacterBattleState {
@@ -173,11 +161,10 @@ struct CharacterBattleState {
     std::unique_ptr<CharacterProperty> characterProperty;
     std::vector<std::unique_ptr<Buff>> buffs;
     CharacterBattleState(int id, CharacterProperty basicCharacterProperty)
-        : characterGlobalId(id)
-        , characterProperty(std::make_unique<CharacterProperty>(basicCharacterProperty))
-        , state(NORMAL)
-    {
-    }
+        : characterGlobalId(id),
+          characterProperty(
+              std::make_unique<CharacterProperty>(basicCharacterProperty)),
+          state(NORMAL) {}
 };
 
 struct HitInfo {
@@ -187,16 +174,14 @@ struct HitInfo {
 };
 
 struct Skill {
-    int skillGlobalId;
-    int level;
-    int targetCount;
+    int skillGlobalId = 0;
+    int level = 0;
+    int targetCount = 0;
     virtual HitInfo hit(CharacterBattleState* attackerState,
-        CharacterBattleState* attackedState)
-    {
-        return { 0, 0, 0 };
+                        CharacterBattleState* attackedState) {
+        return {0, 0, 0};
     }
-    virtual std::vector<Buff> getBuff(bool isFriend)
-    {
+    virtual std::vector<Buff> getBuff(bool isFriend) {
         return std::vector<Buff>();
     }
 };
@@ -206,7 +191,7 @@ struct AppendATK : public Skill {
 };
 
 class Character {
-public:
+   public:
     int level;
     int exp;
     int characterGlobalId;
@@ -215,18 +200,22 @@ public:
     std::array<std::unique_ptr<Relic>, 6> costumes;
     std::vector<std::unique_ptr<Skill>> skills;
     std::vector<std::unique_ptr<AppendATK>> appendATKSkills;
-    inline CharacterBattleState* getInitCharacterBattleState()
-    {
+    Character() {
+        level = 1;
+        exp = 0;
+        characterGlobalId = 0;
+        basicCharacterProperty =
+            std::make_unique<CharacterProperty>(CharacterProperty());
+    }
+    inline CharacterBattleState* getInitCharacterBattleState() {
         CharacterProperty property = *basicCharacterProperty;
         for (const auto& costume : costumes) {
-            if (costume == nullptr)
-                continue;
+            if (costume == nullptr) continue;
             property = property + costume->enhance;
         }
-        property = property * lightCone->enhance;
+        if (lightCone != nullptr) property = property * lightCone->enhance;
 
-        CharacterBattleState* result
-            = new CharacterBattleState(characterGlobalId, property);
+        auto result = new CharacterBattleState(characterGlobalId, property);
         return result;
     };
 };
