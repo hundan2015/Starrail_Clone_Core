@@ -19,7 +19,7 @@ enum BattleCoreState {
 
 struct BattleCore {
     BattleCoreState battleCoreState;
-    std::array<std::shared_ptr<Character>,
+    std::array<std::unique_ptr<CharacterBattleState>,
         playerMaxCount + monsterMaxCount>
         characters;
     void tick(CharacterId character,

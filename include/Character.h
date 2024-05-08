@@ -24,11 +24,11 @@ enum Property {
 
 struct CharacterProperty {
     // Basic
-    int hp;
-    int attack;
-    int defense;
-    int speed;
-    int weakness;
+    int hp = 0;
+    int attack = 0;
+    int defense = 0;
+    int speed = 0;
+    int weakness = 0;
     // Advance
     float criticalRate;
     float criticalDamage;
@@ -139,7 +139,7 @@ struct Relic {
 
 class LightCone {
 public:
-    std::string name;
+    int lightCoreGlobalId;
     int exp;
     int level;
     virtual void onBattleStart();
@@ -168,12 +168,13 @@ struct CharacterBattleState {
         FROZEN,
         DEAD,
     };
-
+    int characterGlobalId;
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
     std::vector<std::unique_ptr<Buff>> buffs;
-    CharacterBattleState(CharacterProperty basicCharacterProperty)
-        : characterProperty(std::make_unique<CharacterProperty>(basicCharacterProperty))
+    CharacterBattleState(int id, CharacterProperty basicCharacterProperty)
+        : characterGlobalId(id)
+        , characterProperty(std::make_unique<CharacterProperty>(basicCharacterProperty))
         , state(NORMAL)
     {
     }
@@ -186,7 +187,7 @@ struct HitInfo {
 };
 
 struct Skill {
-    std::string name;
+    int skillGlobalId;
     int level;
     int targetCount;
     virtual HitInfo hit(CharacterBattleState* attackerState,
@@ -208,7 +209,7 @@ class Character {
 public:
     int level;
     int exp;
-    std::string name;
+    int characterGlobalId;
     std::unique_ptr<CharacterProperty> basicCharacterProperty;
     std::unique_ptr<LightCone> lightCone;
     std::array<std::unique_ptr<Relic>, 6> costumes;
@@ -225,7 +226,7 @@ public:
         property = property * lightCone->enhance;
 
         CharacterBattleState* result
-            = new CharacterBattleState(property);
+            = new CharacterBattleState(characterGlobalId, property);
         return result;
     };
 };

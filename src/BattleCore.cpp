@@ -9,8 +9,8 @@ void BattleCore::tick(CharacterId character, int skillNum,
 {
     if (battleCoreState != BEFORE_ROUND) {
         // Perform normal attack.
-        std::shared_ptr<Character>& c = characters[character];
-        const Skill* const targetSkill = c->skills[skillNum].get();
+        // std::shared_ptr<Character>& c = characters[character];
+        // const Skill* const targetSkill = c->skills[skillNum].get();
         for (auto& target : targets) {
 
             // TODO: Add some buffs to the character.

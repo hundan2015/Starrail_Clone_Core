@@ -5,8 +5,11 @@ include(CTest)
 enable_testing()
 
 add_executable(starrail_core main.cpp src/BattleCore.cpp)
+add_executable(character_test test/characterTest.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 include_directories(./include)
+
+enable_testing()
