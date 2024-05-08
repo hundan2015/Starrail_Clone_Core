@@ -1,12 +1,13 @@
 #ifndef BATTLE_CORE_H
 #define BATTLE_CORE_H
+#include <array>
+#include <list>
+#include <map>
+#include <memory>
+#include <tuple>
 #include <vector>
 
 #include "Character.h"
-#include <array>
-#include <list>
-#include <memory>
-#include <tuple>
 const int playerMaxCount = 4;
 const int monsterMaxCount = 5;
 
@@ -18,13 +19,20 @@ enum BattleCoreState {
 };
 
 struct BattleCore {
-    BattleCoreState battleCoreState;
+    BattleCoreState battleCoreState = BEFORE_ATTACK;
     std::array<std::unique_ptr<CharacterBattleState>,
-        playerMaxCount + monsterMaxCount>
-        characters;
-    void tick(CharacterId character,
-        int skillNum,
-        std::vector<CharacterId> targets);
+               playerMaxCount + monsterMaxCount>
+        characterBattleStates;
+    std::array<const Character*, playerMaxCount + monsterMaxCount> characters = {};
+    std::list<BattleSequence> appendATKs;
+    void tick(CharacterId attacker, int skillNum,
+              const std::vector<CharacterId>& targets);
+    const std::vector<HitInfo>& getHitInfoInTick();
+    void resetHitInfoInTick();
+
+   private:
+    std::vector<HitInfo> hitInfoInTick;
+    void doAttack(int attacker, int skillNum, const std::vector<int>& targets);
 };
 
 #endif

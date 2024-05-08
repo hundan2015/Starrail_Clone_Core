@@ -28,7 +28,8 @@ struct CharacterProperty {
     int attack = 100;
     int defense = 100;
     int speed = 100;
-    int weakness = 0;
+    int weakness = 1;
+    int shelled = 0;
     // Advance
     float criticalRate;
     float criticalDamage;
@@ -53,13 +54,14 @@ struct CharacterProperty {
     float quantumResist;
     float imaginaryDamage;
     float imaginaryResist;
-    CharacterProperty operator+(const CharacterProperty& b) {
+    CharacterProperty operator+(const CharacterProperty& b) const {
         CharacterProperty result;
         add(hp);
         add(attack);
         add(defense);
         add(speed);
         add(weakness);
+        add(shelled);
         // Advance
         add(criticalRate);
         add(criticalDamage);
@@ -93,6 +95,7 @@ struct CharacterProperty {
         mult(defense);
         mult(speed);
         mult(weakness);
+        mult(shelled);
         // Advance
         mult(criticalRate);
         mult(criticalDamage);
@@ -155,39 +158,73 @@ struct CharacterBattleState {
         PREPARE_FOR_APPEND_ATTACK,
         FROZEN,
         DEAD,
+        BROKEN
     };
+    int characterLocalId;
     int characterGlobalId;
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
     std::vector<std::unique_ptr<Buff>> buffs;
-    CharacterBattleState(int id, CharacterProperty basicCharacterProperty)
-        : characterGlobalId(id),
+    CharacterBattleState(int localId, int globalId,
+                         CharacterProperty basicCharacterProperty)
+        : characterLocalId(localId),
+          characterGlobalId(globalId),
           characterProperty(
               std::make_unique<CharacterProperty>(basicCharacterProperty)),
           state(NORMAL) {}
+
+    void applyDamage(int hpDamage, int shelledDamage, int weaknessDamage) {
+        characterProperty->hp -= hpDamage;
+        characterProperty->shelled -= shelledDamage;
+        characterProperty->weakness -= weaknessDamage;
+        if (characterProperty->hp <= 0) {
+            state = DEAD;
+            return;
+        }
+        if (characterProperty->weakness <= 0) {
+            state = BROKEN;
+        }
+    }
+    CharacterState getState() { return state; }
 };
 
 struct HitInfo {
+    int attacker;
+    int target;
     int hpDamage;
     int weaknessDamage;
     int shelledDamage;
 };
 
 struct Skill {
+    Property property;
     int skillGlobalId = 0;
     int level = 0;
     int targetCount = 0;
     virtual HitInfo hit(CharacterBattleState* attackerState,
                         CharacterBattleState* attackedState) {
-        return {0, 0, 0};
+        return {0, 0, 0, 0, 0};
     }
     virtual std::vector<Buff> getBuff(bool isFriend) {
         return std::vector<Buff>();
     }
 };
 
+struct BattleSequence {
+    int attacker;
+    int skillNum;
+    std::vector<CharacterId> targets;
+};
+
 struct AppendATK : public Skill {
-    virtual bool isPerform() { return false; }
+    virtual bool isPerform(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& states) {
+        return false;
+    }
+    virtual BattleSequence getBattleSequence(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& states) {
+        return {};
+    }
 };
 
 class Character {
@@ -215,7 +252,7 @@ class Character {
         }
         if (lightCone != nullptr) property = property * lightCone->enhance;
 
-        auto result = new CharacterBattleState(characterGlobalId, property);
+        auto result = new CharacterBattleState(-1, characterGlobalId, property);
         return result;
     };
 };

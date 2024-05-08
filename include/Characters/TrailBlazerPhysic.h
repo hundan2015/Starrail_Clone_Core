@@ -7,32 +7,38 @@
 #include "Constants.h"
 
 struct FarewellHit : public Skill {
-    std::array<float, 7> percent = {0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1};
+    std::array<float, 7> percent = {0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f};
     FarewellHit() {
         targetCount = 1;
+        property = PHYSICAL;
         skillGlobalId = getSkillNameId("再见安打");
     }
     HitInfo hit(CharacterBattleState* attackerState,
                 CharacterBattleState* attackedState) override {
         float p = percent[level];
 
-        return {(int)(p * attackedState->characterProperty->attack), 0, 0};
+        return {attackerState->characterLocalId,
+                attackedState->characterLocalId,
+                (int)(p * attackedState->characterProperty->attack), 0, 0};
     }
 };
 
 struct RipHomeRun : public Skill {
-    std::array<float, 12> percent = {0.625,    0.6975, 0.75,     0.8125,
-                                     0.875,    0.9375, 1.015625, 1.09375,
-                                     1.171875, 1.25,   1.3125,   1.375};
+    std::array<float, 12> percent = {0.625f,    0.6975f, 0.75f,     0.8125f,
+                                     0.875f,    0.9375f, 1.015625f, 1.09375f,
+                                     1.171875f, 1.25f,   1.3125f,   1.375f};
     RipHomeRun() {
         targetCount = 3;
+        property = PHYSICAL;
         skillGlobalId = getSkillNameId("安息全垒打");
     }
 
     HitInfo hit(CharacterBattleState* attackerState,
                 CharacterBattleState* attackedState) override {
         float p = percent[level];
-        return {(int)(p * attackedState->characterProperty->attack), 0, 0};
+        return {attackerState->characterLocalId,
+                attackedState->characterLocalId,
+                (int)(p * attackedState->characterProperty->attack), 0, 0};
     }
 };
 
