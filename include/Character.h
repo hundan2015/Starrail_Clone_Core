@@ -31,29 +31,29 @@ struct CharacterProperty {
     int weakness = 1;
     int shelled = 0;
     // Advance
-    float criticalRate;
-    float criticalDamage;
-    float breakEffect;
-    float outgoingHealingBoost;
-    float energy;
-    float energyRegenerationRate;
-    float effectHitRate;
-    float effectResist;
+    float criticalRate{};
+    float criticalDamage{};
+    float breakEffect{};
+    float outgoingHealingBoost{};
+    float energy{};
+    float energyRegenerationRate{};
+    float effectHitRate{};
+    float effectResist{};
     // Property Damage
-    float physicalDamage;
-    float physicalResist;
-    float fireDamage;
-    float fireResist;
-    float iceDamage;
-    float iceResist;
-    float lightningDamage;
-    float lightningResist;
-    float windDamage;
-    float windResist;
-    float quantumDamage;
-    float quantumResist;
-    float imaginaryDamage;
-    float imaginaryResist;
+    float physicalDamage{};
+    float physicalResist{};
+    float fireDamage{};
+    float fireResist{};
+    float iceDamage{};
+    float iceResist{};
+    float lightningDamage{};
+    float lightningResist{};
+    float windDamage{};
+    float windResist{};
+    float quantumDamage{};
+    float quantumResist{};
+    float imaginaryDamage{};
+    float imaginaryResist{};
     CharacterProperty operator+(const CharacterProperty& b) const {
         CharacterProperty result;
         add(hp);
@@ -126,20 +126,20 @@ struct CharacterProperty {
 
 struct Relic {
     enum RelicPlace { HEAD, HAND, BODY, FEET, BALL, STRING };
-    int exp;
-    int level;
+    int exp{};
+    int level{};
     CharacterProperty enhance;
 };
 
 class LightCone {
    public:
-    int lightCoreGlobalId;
-    int exp;
-    int level;
-    virtual void onBattleStart();
-    virtual void onUltimate();
-    virtual void onSkill();
-    virtual void onBasicATK();
+    int lightCoreGlobalId{};
+    int exp{};
+    int level{};
+    virtual void onBattleStart() = 0;
+    virtual void onUltimate() = 0;
+    virtual void onSkill() = 0;
+    virtual void onBasicATK() = 0;
     CharacterProperty enhance;
 };
 
@@ -164,7 +164,8 @@ struct CharacterBattleState {
     int characterGlobalId;
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
-    std::vector<std::unique_ptr<Buff>> buffs;
+    std::vector<std::unique_ptr<Buff>> buffs = {};
+    std::vector<Property> weakpoints = {};
     CharacterBattleState(int localId, int globalId,
                          CharacterProperty basicCharacterProperty)
         : characterLocalId(localId),
@@ -185,7 +186,7 @@ struct CharacterBattleState {
             state = BROKEN;
         }
     }
-    CharacterState getState() { return state; }
+    CharacterState getState() const { return state; }
 };
 
 struct HitInfo {
@@ -197,7 +198,7 @@ struct HitInfo {
 };
 
 struct Skill {
-    Property property;
+    Property property = PHYSICAL;
     int skillGlobalId = 0;
     int level = 0;
     int targetCount = 0;
@@ -205,9 +206,7 @@ struct Skill {
                         CharacterBattleState* attackedState) {
         return {0, 0, 0, 0, 0};
     }
-    virtual std::vector<Buff> getBuff(bool isFriend) {
-        return std::vector<Buff>();
-    }
+    virtual std::vector<Buff> getBuff(bool isFriend) { return {}; }
 };
 
 struct BattleSequence {
@@ -237,6 +236,7 @@ class Character {
     std::array<std::unique_ptr<Relic>, 6> costumes;
     std::vector<std::unique_ptr<Skill>> skills;
     std::vector<std::unique_ptr<AppendATK>> appendATKSkills;
+    std::vector<Property> weakpoints;
     Character() {
         level = 1;
         exp = 0;
@@ -253,6 +253,7 @@ class Character {
         if (lightCone != nullptr) property = property * lightCone->enhance;
 
         auto result = new CharacterBattleState(-1, characterGlobalId, property);
+        result->weakpoints = weakpoints;
         return result;
     };
 };
