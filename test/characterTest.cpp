@@ -24,10 +24,11 @@ int main() {
     battleCore.characterBattleStates[4]->characterLocalId = 4;
 
     battleCore.tick(0, 0, std::vector<int>({4}));
-    auto hitInfos = battleCore.getHitInfoInTick();
+    auto& hitInfos = battleCore.getHitInfoInTick();
     for (auto& i : hitInfos) {
         battleCore.characterBattleStates[i.target]->applyDamage(
             i.hpDamage, i.shelledDamage, i.weaknessDamage);
     }
     battleCore.resetHitInfoInTick();
+
 }

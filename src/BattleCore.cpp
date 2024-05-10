@@ -34,16 +34,24 @@ void BattleCore::tick(CharacterId attacker, int skillNum,
         }
     }
 
+    auto& hitInfos = getHitInfoInTick();
+    for (auto& i : hitInfos) {
+        characterBattleStates[i.target]->applyDamage(
+            i.hpDamage, i.shelledDamage, i.weaknessDamage);
+    }
+
     // Process append attacks.
     for (int i = 0; i < characters.size(); ++i) {
         auto attackerCharacter = characters[i];
         if (attackerCharacter == nullptr) continue;
-        for (int j = 0; j < attackerCharacter->appendATKSkills.size(); ++i) {
+        for (int j = 0; j < attackerCharacter->appendATKSkills.size(); ++j) {
             auto& appendATK = attackerCharacter->appendATKSkills[j];
-            if (!appendATK->isPerform(characterBattleStates)) continue;
+            if (!appendATK->isPerform(characterBattleStates,
+                                      originalCharacterProperty))
+                continue;
             debugOut("Have appendATK!");
             appendATKs.push_front(
-                appendATK->getBattleSequence(characterBattleStates));
+                appendATK->getBattleSequence(i, characterBattleStates));
         }
     }
 
@@ -73,3 +81,61 @@ const std::vector<HitInfo>& BattleCore::getHitInfoInTick() {
     return hitInfoInTick;
 }
 void BattleCore::resetHitInfoInTick() { hitInfoInTick.clear(); }
+void BattleCore::initActionPoint() {
+    judgeActionPoint = 10000.0f / (float)judgeSpeed;
+    for (const auto& characterBattleState : characterBattleStates) {
+        if (characterBattleState == nullptr) continue;
+        float& actionPoint = characterBattleState->actionPoint;
+        actionPoint =
+            10000.0f / (float)(characterBattleState->characterProperty->speed);
+    }
+}
+int BattleCore::getNextAction() {
+    float minActionPoint = 25600;
+    int minActionPointPosition{};
+    const float initJudgeActionPoint = 10000.0f / (float)judgeSpeed;
+    for (int i = 0; i < characterBattleStates.size(); ++i) {
+        if (characterBattleStates[i] == nullptr) continue;
+        float& actionPoint = characterBattleStates[i]->actionPoint;
+        if (actionPoint < minActionPoint) {
+            minActionPoint = actionPoint;
+            minActionPointPosition = i;
+        }
+    }
+    if (judgeActionPoint < minActionPoint) {
+        turnCounter++;
+        judgeActionPoint =
+            ((initJudgeActionPoint + judgeActionPoint) - minActionPoint);
+    }
+    for (int i = 0; i < characterBattleStates.size(); ++i) {
+        if (characterBattleStates[i] == nullptr) continue;
+        float& actionPoint = characterBattleStates[i]->actionPoint;
+        if (i == minActionPointPosition) {
+            actionPoint =
+                10000.0f /
+                (float)(characterBattleStates[i]->characterProperty->speed);
+            continue;
+        }
+        actionPoint -= minActionPoint;
+    }
+    return minActionPointPosition;
+}
+GameState BattleCore::getGameState() {
+    bool isAlive = false;
+    for (int i = 0; i < playerMaxCount; ++i) {
+        if (characterBattleStates[i]->state != CharacterBattleState::DEAD) {
+            isAlive = true;
+            break;
+        }
+    }
+    bool isEnemyAlive = false;
+    for (int i = playerMaxCount; i < monsterMaxCount; ++i) {
+        if (characterBattleStates[i]->state != CharacterBattleState::DEAD) {
+            isEnemyAlive = true;
+            break;
+        }
+    }
+    if (isEnemyAlive && isAlive) return GOING;
+    if (isEnemyAlive) return DEFEATED;
+    return VICTORY;
+}

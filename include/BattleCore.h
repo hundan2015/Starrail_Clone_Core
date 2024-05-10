@@ -18,17 +18,31 @@ enum BattleCoreState {
     BEFORE_ULTIMATE,
 };
 
+enum GameState { VICTORY, DEFEATED, GOING };
+
 struct BattleCore {
     BattleCoreState battleCoreState = BEFORE_ATTACK;
     std::array<std::unique_ptr<CharacterBattleState>,
                playerMaxCount + monsterMaxCount>
         characterBattleStates;
-    std::array<const Character*, playerMaxCount + monsterMaxCount> characters = {};
+    std::array<const Character*, playerMaxCount + monsterMaxCount> characters =
+        {};
+    std::array<const CharacterProperty*, playerMaxCount + monsterMaxCount>
+        originalCharacterProperty = {};
     std::list<BattleSequence> appendATKs;
     void tick(CharacterId attacker, int skillNum,
               const std::vector<CharacterId>& targets);
     const std::vector<HitInfo>& getHitInfoInTick();
     void resetHitInfoInTick();
+    int turnCounter = 0;
+    const int judgeSpeed = 100;
+    float judgeActionPoint = 0;
+
+    void initActionPoint();
+
+    int getNextAction();
+
+    GameState getGameState();
 
    private:
     std::vector<HitInfo> hitInfoInTick;

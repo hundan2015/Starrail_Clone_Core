@@ -162,6 +162,7 @@ struct CharacterBattleState {
     };
     int characterLocalId;
     int characterGlobalId;
+    float actionPoint{};
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
     std::vector<std::unique_ptr<Buff>> buffs = {};
@@ -207,6 +208,12 @@ struct Skill {
         return {0, 0, 0, 0, 0};
     }
     virtual std::vector<Buff> getBuff(bool isFriend) { return {}; }
+    virtual std::vector<int> getTargets(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int aim) {
+        return {aim};
+    }
+    virtual void initState() {}
 };
 
 struct BattleSequence {
@@ -217,10 +224,11 @@ struct BattleSequence {
 
 struct AppendATK : public Skill {
     virtual bool isPerform(
-        std::array<std::unique_ptr<CharacterBattleState>, 9>& states) {
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& states,
+        std::array<const CharacterProperty*, 9>& characters) {
         return false;
     }
-    virtual BattleSequence getBattleSequence(
+    virtual BattleSequence getBattleSequence(int attacker,
         std::array<std::unique_ptr<CharacterBattleState>, 9>& states) {
         return {};
     }
@@ -235,7 +243,7 @@ class Character {
     std::unique_ptr<LightCone> lightCone;
     std::array<std::unique_ptr<Relic>, 6> costumes;
     std::vector<std::unique_ptr<Skill>> skills;
-    std::vector<std::unique_ptr<AppendATK>> appendATKSkills;
+    std::vector<AppendATK*> appendATKSkills;
     std::vector<Property> weakpoints;
     Character() {
         level = 1;
@@ -245,16 +253,20 @@ class Character {
             std::make_unique<CharacterProperty>(CharacterProperty());
     }
     inline CharacterBattleState* getInitCharacterBattleState() {
+        CharacterProperty property = getInitProperty();
+
+        auto result = new CharacterBattleState(-1, characterGlobalId, property);
+        result->weakpoints = weakpoints;
+        return result;
+    }
+    CharacterProperty getInitProperty() {
         CharacterProperty property = *basicCharacterProperty;
         for (const auto& costume : costumes) {
             if (costume == nullptr) continue;
             property = property + costume->enhance;
         }
         if (lightCone != nullptr) property = property * lightCone->enhance;
-
-        auto result = new CharacterBattleState(-1, characterGlobalId, property);
-        result->weakpoints = weakpoints;
-        return result;
+        return property;
     };
 };
 

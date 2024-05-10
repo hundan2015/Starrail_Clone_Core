@@ -11,7 +11,7 @@ struct FarewellHit : public Skill {
     FarewellHit() {
         targetCount = 1;
         property = PHYSICAL;
-        skillGlobalId = getSkillNameId("再见安打");
+        skillGlobalId = getSkillNameId(SKILL_FAREWELL_HIT);
     }
     HitInfo hit(CharacterBattleState* attackerState,
                 CharacterBattleState* attackedState) override {
@@ -30,7 +30,7 @@ struct RipHomeRun : public Skill {
     RipHomeRun() {
         targetCount = 3;
         property = PHYSICAL;
-        skillGlobalId = getSkillNameId("安息全垒打");
+        skillGlobalId = getSkillNameId(SKILL_RIP_HOME_RUN);
     }
 
     HitInfo hit(CharacterBattleState* attackerState,
@@ -44,7 +44,7 @@ struct RipHomeRun : public Skill {
 
 struct TrailBlazerPhysic : public Character {
     TrailBlazerPhysic() : Character() {
-        characterGlobalId = getCharacterNameId("开拓者");
+        characterGlobalId = getCharacterNameId(CHARACTER_TRAIL_BLAZER);
         skills.push_back(std::make_unique<FarewellHit>());
         skills.push_back(std::make_unique<RipHomeRun>());
     }
