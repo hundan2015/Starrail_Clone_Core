@@ -8,8 +8,10 @@
 #include "Character.h"
 #include "Constants.h"
 #include "utils.h"
+
 struct KeepTheBallRolling : public Buff {
     KeepTheBallRolling() {
+        type = BUFF;
         isLong = true;
         buffGlobalId = getBuffNameId(BUFF_KEEP_THE_BALL_ROLLING);
         level = 1;
@@ -21,7 +23,9 @@ struct KeepTheBallRolling : public Buff {
 
 struct NoOneCanBetrayMe : public Buff {
     NoOneCanBetrayMe() {
+        type = BUFF;
         buffGlobalId = getBuffNameId(BUFF_NO_ONE_CAN_BETRAY_ME);
+        isLong = false;
         life = 1;
     }
     void enhance(CharacterProperty& characterProperty) override {
