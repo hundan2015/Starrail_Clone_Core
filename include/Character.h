@@ -4,9 +4,6 @@
 #include <cstddef>
 #define CharacterId int
 
-#define add(x) result.x = this->x + b.x;
-#define mult(x) result.x = this->x * (b.x + 1);
-
 #include <array>
 #include <iostream>
 #include <memory>
@@ -27,12 +24,12 @@ enum Property {
 
 struct CharacterProperty {
     // Basic
-    int hp = 100;
-    int attack = 100;
-    int defense = 100;
-    int speed = 100;
-    int weakness = 1;
-    int shelled = 0;
+    float hp = 100;
+    float attack = 100;
+    float defense = 100;
+    float speed = 100;
+    float weakness = 1;
+    float shelled = 0;
     // Advance
     float criticalRate{};
     float criticalDamage{};
@@ -57,81 +54,13 @@ struct CharacterProperty {
     float quantumResist{1};
     float imaginaryDamage{1};
     float imaginaryResist{1};
-    CharacterProperty operator+(const CharacterProperty& b) const {
-        CharacterProperty result;
-        add(hp);
-        add(attack);
-        add(defense);
-        add(speed);
-        add(weakness);
-        add(shelled);
-        // Advance
-        add(criticalRate);
-        add(criticalDamage);
-        add(breakEffect);
-        add(outgoingHealingBoost);
-        add(energy);
-        add(energyRegenerationRate);
-        add(effectHitRate);
-        add(effectResist);
-        // Property Damage
-        add(physicalDamage);
-        add(physicalResist);
-        add(fireDamage);
-        add(fireResist);
-        add(iceDamage);
-        add(iceResist);
-        add(lightningDamage);
-        add(lightningResist);
-        add(windDamage);
-        add(windResist);
-        add(quantumDamage);
-        add(quantumResist);
-        add(imaginaryResist);
-        add(imaginaryDamage);
-        return result;
-    }
-    CharacterProperty operator*(const CharacterProperty& b) {
-        CharacterProperty result;
-        mult(hp);
-        mult(attack);
-        mult(defense);
-        mult(speed);
-        mult(weakness);
-        mult(shelled);
-        // Advance
-        mult(criticalRate);
-        mult(criticalDamage);
-        mult(breakEffect);
-        mult(outgoingHealingBoost);
-        mult(energy);
-        mult(energyRegenerationRate);
-        mult(effectHitRate);
-        mult(effectResist);
-        // Property Damage
-        mult(physicalDamage);
-        mult(physicalResist);
-        mult(fireDamage);
-        mult(fireResist);
-        mult(iceDamage);
-        mult(iceResist);
-        mult(lightningDamage);
-        mult(lightningResist);
-        mult(windDamage);
-        mult(windResist);
-        mult(quantumDamage);
-        mult(quantumResist);
-        mult(imaginaryResist);
-        mult(imaginaryDamage);
-        return result;
-    }
 };
 
 struct Relic {
     enum RelicPlace { HEAD, HAND, BODY, FEET, BALL, STRING };
     int exp{};
     int level{};
-    CharacterProperty enhance;
+    virtual void enhance(CharacterProperty& characterProperty) = 0;
 };
 
 class LightCone {
@@ -143,15 +72,18 @@ class LightCone {
     virtual void onUltimate() = 0;
     virtual void onSkill() = 0;
     virtual void onBasicATK() = 0;
-    CharacterProperty enhance;
+    virtual void enhance(CharacterProperty& characterProperty) = 0;
 };
 
 struct Buff {
     enum BuffType { BUFF, DEBUFF };
-    bool isVisible;
-    bool isLong;
+    bool isVisible{};
+    bool isLong = false;
     BuffType type;
-    int life;
+    int life{};
+    int level{};
+    int buffGlobalId{};
+    virtual void enhance(CharacterProperty& characterProperty) {}
     void update() {}
 };
 
@@ -165,10 +97,11 @@ struct CharacterBattleState {
     };
     int characterLocalId;
     int characterGlobalId;
+    int eidolonLevel{};
     float actionPoint{};
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
-    std::vector<std::unique_ptr<Buff>> buffs = {};
+    std::list<std::unique_ptr<Buff>> buffs = {};
     std::vector<Property> weakpoints = {};
     CharacterBattleState(int localId, int globalId,
                          CharacterProperty basicCharacterProperty)
@@ -191,14 +124,23 @@ struct CharacterBattleState {
         }
     }
     CharacterState getState() const { return state; }
+    CharacterProperty getCurrentProperty() {
+        auto result = *characterProperty;
+        for (auto& i : buffs) {
+            i->enhance(result);
+        }
+        return result;
+    }
 };
 
 struct HitInfo {
     int attacker;
     int target;
-    int hpDamage;
-    int weaknessDamage;
-    int shelledDamage;
+    float hpDamage;
+    float weaknessDamage;
+    float shelledDamage;
+    std::vector<Buff> selfBuffs;
+    std::vector<Buff> targetBuffs;
 };
 
 struct Skill {
@@ -211,7 +153,6 @@ struct Skill {
         int attacker, int target) {
         return {0, 0, 0, 0, 0};
     }
-    virtual std::vector<Buff> getBuff(bool isFriend) { return {}; }
     virtual std::vector<int> getTargets(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int aim) {
@@ -244,6 +185,7 @@ class Character {
     int level;
     int exp;
     int characterGlobalId;
+    int eidolonLevel{};
     std::unique_ptr<CharacterProperty> basicCharacterProperty;
     std::unique_ptr<LightCone> lightCone;
     std::array<std::unique_ptr<Relic>, 6> costumes;
@@ -262,15 +204,16 @@ class Character {
 
         auto result = new CharacterBattleState(-1, characterGlobalId, property);
         result->weakpoints = weakpoints;
+        result->eidolonLevel = eidolonLevel;
         return result;
     }
     CharacterProperty getInitProperty() {
         CharacterProperty property = *basicCharacterProperty;
         for (const auto& costume : costumes) {
             if (costume == nullptr) continue;
-            property = property + costume->enhance;
+            costume->enhance(property);
         }
-        if (lightCone != nullptr) property = property * lightCone->enhance;
+        if (lightCone != nullptr) lightCone->enhance(property);
         return property;
     };
 };

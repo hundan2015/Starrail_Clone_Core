@@ -19,6 +19,7 @@ enum BattleCoreState {
 enum GameState { VICTORY, DEFEATED, GOING };
 
 struct BattleCore {
+    static BattleCore& getInstance();
     BattleCoreState battleCoreState = BEFORE_ATTACK;
     std::array<std::unique_ptr<CharacterBattleState>,
                playerMaxCount + monsterMaxCount>
@@ -43,6 +44,9 @@ struct BattleCore {
     GameState getGameState();
 
    private:
+    BattleCore();
+    ~BattleCore();
+
     std::vector<HitInfo> hitInfoInTick;
     void doAttack(int attacker, int skillNum, const std::vector<int>& targets);
 };

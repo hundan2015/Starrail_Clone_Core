@@ -24,11 +24,12 @@ void registerPlayerToBattleCore(BattleCore& battleCore, Character* character,
     battleCore.characterBattleStates[pos]->characterLocalId = pos;
 }
 int main() {
-    BattleCore battleCore;
+    BattleCore& battleCore = BattleCore::getInstance();
     // Add some players.
     auto p1 = std::make_unique<Character>(TrailBlazerPhysic());
     auto p2 = std::make_unique<Character>(TrailBlazerPhysic());
     auto p3 = std::make_unique<Character>(Herta());
+    p3->eidolonLevel = 0;
     registerPlayerToBattleCore(battleCore, p1.get(), 0);
     registerPlayerToBattleCore(battleCore, p3.get(), 1);
     registerPlayerToBattleCore(battleCore, p2.get(), 4);

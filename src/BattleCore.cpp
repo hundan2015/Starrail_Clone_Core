@@ -36,6 +36,14 @@ void BattleCore::tick(CharacterId attacker, int skillNum,
 
     auto& hitInfos = getHitInfoInTick();
     for (auto& i : hitInfos) {
+        for (auto& targetBuff : i.targetBuffs) {
+            characterBattleStates[i.target]->buffs.push_back(
+                std::make_unique<Buff>(targetBuff));
+        }
+        for (auto& selfBuff : i.selfBuffs) {
+            characterBattleStates[i.attacker]->buffs.push_back(
+                std::make_unique<Buff>(selfBuff));
+        }
         characterBattleStates[i.target]->applyDamage(
             i.hpDamage, i.shelledDamage, i.weaknessDamage);
     }
@@ -66,7 +74,6 @@ void BattleCore::doAttack(int attacker, int skillNum,
     auto& attackerInfo = characterBattleStates[attacker];
     auto attackerCharacter = characters[attacker];
     for (auto& target : targets) {
-        // TODO: Add some buffs to the attacker.
         auto& targetInfo = characterBattleStates[target];
         auto& skill = attackerCharacter->skills[skillNum];
         HitInfo result = skill->hit(characterBattleStates, attacker, target);
@@ -139,3 +146,9 @@ GameState BattleCore::getGameState() {
     if (isEnemyAlive) return DEFEATED;
     return VICTORY;
 }
+BattleCore& BattleCore::getInstance() {
+    static BattleCore battleCore;
+    return battleCore;
+}
+BattleCore::BattleCore() {}
+BattleCore::~BattleCore() {}

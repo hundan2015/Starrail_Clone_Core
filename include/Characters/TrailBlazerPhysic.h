@@ -16,11 +16,8 @@ struct FarewellHit : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        return hitGeneral<PHYSICAL, 7>(percent, level, battleStates, attacker,
+                                   target);
     }
 };
 
@@ -37,11 +34,8 @@ struct RipHomeRun : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        return hitGeneral<PHYSICAL, 12>(percent, level, battleStates, attacker,
+                                   target);
     }
 };
 
@@ -56,11 +50,8 @@ struct StardustAceSingle : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        return hitGeneral<PHYSICAL, 9>(percent, level, battleStates, attacker,
+                                   target);
     }
 };
 

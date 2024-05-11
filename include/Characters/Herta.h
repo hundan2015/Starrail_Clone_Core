@@ -8,9 +8,31 @@
 #include "Character.h"
 #include "Constants.h"
 #include "utils.h"
+struct KeepTheBallRolling : public Buff {
+    KeepTheBallRolling() {
+        isLong = true;
+        buffGlobalId = getBuffNameId(BUFF_KEEP_THE_BALL_ROLLING);
+        level = 1;
+    }
+    void enhance(CharacterProperty& characterProperty) override {
+        characterProperty.criticalRate += (float)level * 0.03f;
+    };
+};
+
+struct NoOneCanBetrayMe : public Buff {
+    NoOneCanBetrayMe() {
+        buffGlobalId = getBuffNameId(BUFF_NO_ONE_CAN_BETRAY_ME);
+        life = 1;
+    }
+    void enhance(CharacterProperty& characterProperty) override {
+        characterProperty.attack *= 1.25f;
+    };
+};
+
 struct ItsMagic : public Skill {
-    std::array<float, 15> percent{1.2, 1.28, 1.36, 1.44, 1.52, 1.6,  1.7, 1.8,
-                                  1.9, 2.0,  2.08, 2.16, 2.24, 2.32, 2.4};
+    std::array<float, 15> percent{1.2f,  1.28f, 1.36f, 1.44f, 1.52f,
+                                  1.6f,  1.7f,  1.8f,  1.9f,  2.0f,
+                                  2.08f, 2.16f, 2.24f, 2.32f, 2.4f};
     ItsMagic() {
         targetCount = 5;
         property = ICE;
@@ -19,12 +41,12 @@ struct ItsMagic : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        if (battleStates[attacker]->eidolonLevel >= 6) {
+            battleStates[attacker]->buffs.push_back(
+                std::make_unique<NoOneCanBetrayMe>());
+        }
+        return hitGeneral<ICE, 15>(percent, level, battleStates, attacker,
+                                   target);
     }
     std::vector<int> getTargets(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
@@ -38,7 +60,8 @@ struct ItsMagic : public Skill {
 };
 
 struct WhatAreYouLookingAt : public Skill {
-    std::array<float, 9> percent{0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3};
+    std::array<float, 9> percent{0.5f, 0.6f, 0.7f, 0.8f, 0.9f,
+                                 1.0f, 1.1f, 1.2f, 1.3f};
     WhatAreYouLookingAt() {
         targetCount = 1;
         property = ICE;
@@ -47,18 +70,24 @@ struct WhatAreYouLookingAt : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        auto result =
+            hitGeneral<ICE, 9>(percent, level, battleStates, attacker, target);
+        auto& battleCore = BattleCore::getInstance();
+
+        if (battleStates[attacker]->eidolonLevel >= 1 &&
+            battleStates[target]->characterProperty->hp <
+                0.5 * battleCore.originalCharacterProperty[target]->hp) {
+            result.hpDamage +=
+                (int)(battleStates[attacker]->characterProperty->attack * 0.4);
+        }
+        return result;
     }
 };
 
 struct OneTimeOffer : public Skill {
-    std::array<float, 15> percent{0.5,  0.55,  0.6,   0.65,  0.7,
-                                  0.75, 0.812, 0.875, 0.937, 1.0,
-                                  1.05, 1.1,   1.15,  1.2,   1.25};
+    std::array<float, 15> percent{0.5f,  0.55f,  0.6f,   0.65f,  0.7f,
+                                  0.75f, 0.812f, 0.875f, 0.937f, 1.0f,
+                                  1.05f, 1.1f,   1.15f,  1.2f,   1.25f};
     OneTimeOffer() {
         targetCount = 1;
         property = ICE;
@@ -67,18 +96,15 @@ struct OneTimeOffer : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        float p = percent[level];
-        auto& attackerState = battleStates[attacker];
-        auto& targetState = battleStates[target];
-        return {attackerState->characterLocalId, targetState->characterLocalId,
-                (int)(p * targetState->characterProperty->attack), 0, 0};
+        return hitGeneral<ICE, 15>(percent, level, battleStates, attacker,
+                                   target);
     }
 };
 
 struct FineIWillDoItMyself : public AppendATK {
-    std::array<float, 15> percent{0.25,  0.265, 0.28,  0.295, 0.31,
-                                  0.325, 0.343, 0.362, 0.381, 0.4,
-                                  0.415, 0.43,  0.445, 0.46,  0.475};
+    std::array<float, 15> percent{0.25f,  0.265f, 0.28f,  0.295f, 0.31f,
+                                  0.325f, 0.343f, 0.362f, 0.381f, 0.4f,
+                                  0.415f, 0.43f,  0.445f, 0.46f,  0.475f};
     std::array<bool, 9> isPerformed{false};
     FineIWillDoItMyself() {
         targetCount = 5;
@@ -88,15 +114,30 @@ struct FineIWillDoItMyself : public AppendATK {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override {
-        //        float p = percent[level];
-        //        auto& attackerState = battleStates[attacker];
-        //        auto& targetState = battleStates[target];
-        //        return {attackerState->characterLocalId,
-        //        targetState->characterLocalId,
-        //                (int)(p * targetState->characterProperty->attack), 0,
-        //                0};
-        return hitGeneral<ICE, 15>(percent, level, battleStates, attacker,
-                                   target);
+        if (battleStates[attacker]->eidolonLevel >= 1) {
+            bool isHaveBuff = false;
+            for (auto& i : battleStates[attacker]->buffs) {
+                if (i->buffGlobalId ==
+                    getBuffNameId(BUFF_KEEP_THE_BALL_ROLLING)) {
+                    isHaveBuff = true;
+                    if (i->level < 5) {
+                        i->level++;
+                    }
+                }
+            }
+            if (!isHaveBuff) {
+                battleStates[attacker]->buffs.push_back(
+                    std::make_unique<KeepTheBallRolling>());
+            }
+        }
+        if (battleStates[attacker]->eidolonLevel >= 4) {
+        }
+        auto result =
+            hitGeneral<ICE, 15>(percent, level, battleStates, attacker, target);
+        if (battleStates[attacker]->eidolonLevel >= 4) {
+            result.hpDamage = result.hpDamage * 1.1f;
+        }
+        return result;
     }
     bool isPerform(std::array<std::unique_ptr<CharacterBattleState>, 9>& states,
                    std::array<const CharacterProperty*, 9>&

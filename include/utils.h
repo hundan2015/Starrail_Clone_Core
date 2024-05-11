@@ -5,14 +5,16 @@
 #ifndef STARRAIL_CORE_UTILS_H
 #define STARRAIL_CORE_UTILS_H
 
+#include <random>
+
 #include "Character.h"
 
 #define PROPERTY_HIT_RATE(X, Y)                                       \
     template <>                                                       \
     float getPropertyHitRate<X>(CharacterBattleState * attackerState, \
                                 CharacterBattleState * targetState) { \
-        return attackerState->characterProperty->Y##Damage *          \
-               targetState->characterProperty->Y##Resist;             \
+        return attackerState->getCurrentProperty().Y##Damage *        \
+               targetState->getCurrentProperty().Y##Resist;           \
     }
 
 template <Property property>
@@ -29,6 +31,14 @@ PROPERTY_HIT_RATE(WIND, wind);
 PROPERTY_HIT_RATE(QUANTUM, quantum);
 PROPERTY_HIT_RATE(IMAGINARY, imaginary);
 
+float getRandomNumber() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(0.0, 1.0);
+    float random_number = dis(gen);
+    return random_number;
+}
+
 template <Property property, size_t percent_size>
 HitInfo hitGeneral(
     std::array<float, percent_size> percent, int level,
@@ -39,8 +49,13 @@ HitInfo hitGeneral(
     auto& targetState = battleStates[target];
     float propertyRate =
         getPropertyHitRate<property>(attackerState.get(), targetState.get());
-    int damageResult =
-        (int)(propertyRate * p * (float)targetState->characterProperty->attack);
+    float random = getRandomNumber();
+    float critical = 1;
+    if (random < battleStates[attacker]->getCurrentProperty().criticalRate) {
+        critical += battleStates[attacker]->getCurrentProperty().criticalDamage;
+    }
+    float damageResult = propertyRate * p * critical *
+                             targetState->characterProperty->attack;
     return {attackerState->characterLocalId, targetState->characterLocalId,
             damageResult, 0, 0};
 }
