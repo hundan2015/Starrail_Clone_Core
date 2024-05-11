@@ -69,7 +69,7 @@ void BattleCore::doAttack(int attacker, int skillNum,
         // TODO: Add some buffs to the attacker.
         auto& targetInfo = characterBattleStates[target];
         auto& skill = attackerCharacter->skills[skillNum];
-        HitInfo result = skill->hit(attackerInfo.get(), targetInfo.get());
+        HitInfo result = skill->hit(characterBattleStates, attacker, target);
         // TODO: Add some recalls
         hitInfoInTick.push_back(result);
         if (targetInfo->getState() == CharacterBattleState::BROKEN) {

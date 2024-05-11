@@ -12,6 +12,9 @@
 #include <memory>
 #include <vector>
 
+const int playerMaxCount = 4;
+const int monsterMaxCount = 5;
+
 enum Property {
     PHYSICAL,
     FIRE,
@@ -40,20 +43,20 @@ struct CharacterProperty {
     float effectHitRate{};
     float effectResist{};
     // Property Damage
-    float physicalDamage{};
-    float physicalResist{};
-    float fireDamage{};
-    float fireResist{};
-    float iceDamage{};
-    float iceResist{};
-    float lightningDamage{};
-    float lightningResist{};
-    float windDamage{};
-    float windResist{};
-    float quantumDamage{};
-    float quantumResist{};
-    float imaginaryDamage{};
-    float imaginaryResist{};
+    float physicalDamage{1};
+    float physicalResist{1};
+    float fireDamage{1};
+    float fireResist{1};
+    float iceDamage{1};
+    float iceResist{1};
+    float lightningDamage{1};
+    float lightningResist{1};
+    float windDamage{1};
+    float windResist{1};
+    float quantumDamage{1};
+    float quantumResist{1};
+    float imaginaryDamage{1};
+    float imaginaryResist{1};
     CharacterProperty operator+(const CharacterProperty& b) const {
         CharacterProperty result;
         add(hp);
@@ -203,8 +206,9 @@ struct Skill {
     int skillGlobalId = 0;
     int level = 0;
     int targetCount = 0;
-    virtual HitInfo hit(CharacterBattleState* attackerState,
-                        CharacterBattleState* attackedState) {
+    virtual HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) {
         return {0, 0, 0, 0, 0};
     }
     virtual std::vector<Buff> getBuff(bool isFriend) { return {}; }
@@ -228,7 +232,8 @@ struct AppendATK : public Skill {
         std::array<const CharacterProperty*, 9>& characters) {
         return false;
     }
-    virtual BattleSequence getBattleSequence(int attacker,
+    virtual BattleSequence getBattleSequence(
+        int attacker,
         std::array<std::unique_ptr<CharacterBattleState>, 9>& states) {
         return {};
     }

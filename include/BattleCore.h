@@ -8,8 +8,6 @@
 #include <vector>
 
 #include "Character.h"
-const int playerMaxCount = 4;
-const int monsterMaxCount = 5;
 
 enum BattleCoreState {
     BEFORE_ROUND,

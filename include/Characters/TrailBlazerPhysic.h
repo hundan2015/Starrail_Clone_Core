@@ -13,13 +13,14 @@ struct FarewellHit : public Skill {
         property = PHYSICAL;
         skillGlobalId = getSkillNameId(SKILL_FAREWELL_HIT);
     }
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
         float p = percent[level];
-
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
     }
 };
 
@@ -33,20 +34,48 @@ struct RipHomeRun : public Skill {
         skillGlobalId = getSkillNameId(SKILL_RIP_HOME_RUN);
     }
 
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
         float p = percent[level];
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
+    }
+};
+
+struct StardustAceSingle : public Skill {
+    std::array<float, 9> percent = {3.f,   3.15f,  3.3f,   3.45f, 3.6f,
+                                    3.75f, 3.937f, 4.125f, 4.312f};
+    StardustAceSingle() {
+        targetCount = 1;
+        property = PHYSICAL;
+        skillGlobalId = getSkillNameId(SKILL_STAR_DUST_ACE_SINGLE);
+    }
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
+        float p = percent[level];
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
     }
 };
 
 struct TrailBlazerPhysic : public Character {
     TrailBlazerPhysic() : Character() {
-        characterGlobalId = getCharacterNameId(CHARACTER_TRAIL_BLAZER);
+        characterGlobalId =
+            getCharacterNameId(CHARACTER_TRAIL_BLAZER_DESTRUCTION);
         skills.push_back(std::make_unique<FarewellHit>());
         skills.push_back(std::make_unique<RipHomeRun>());
+        skills.push_back(std::make_unique<StardustAceSingle>());
+
+        basicCharacterProperty->hp = 163;
+        basicCharacterProperty->attack = 84;
+        basicCharacterProperty->defense = 62;
+        basicCharacterProperty->speed = 100;
     }
 };
 

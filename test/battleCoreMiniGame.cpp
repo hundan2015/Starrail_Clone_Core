@@ -79,5 +79,24 @@ int main() {
             if (battleCore.getGameState() != GOING) break;
             battleCore.resetHitInfoInTick();
         }
+        if (battleCore.battleCoreState == BEFORE_ROUND) {
+            battleCore.tick(0, 0, {});
+            auto& appendHitInfos = battleCore.getHitInfoInTick();
+            for (auto& i : appendHitInfos) {
+                auto& attacker = battleCore.characters[i.attacker];
+                auto tempName = characterStrings[attacker->characterGlobalId];
+                auto& targetCharacter = battleCore.characters[i.target];
+                auto& targetCharacterState =
+                    battleCore.characterBattleStates[i.target];
+                cout << tempName << "在回合前打了"
+                     << characterStrings[targetCharacter->characterGlobalId]
+                     << endl;
+                cout << characterStrings[targetCharacter->characterGlobalId]
+                     << " HP:" << targetCharacterState->characterProperty->hp
+                     << endl;
+            }
+            if (battleCore.getGameState() != GOING) break;
+            battleCore.resetHitInfoInTick();
+        }
     }
 }

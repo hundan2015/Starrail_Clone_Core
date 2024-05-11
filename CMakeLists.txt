@@ -5,12 +5,8 @@ include(CTest)
 enable_testing()
 
 add_executable(starrail_core main.cpp src/BattleCore.cpp
-        src/ActionCore.cpp
-        include/ActionCore.h
         include/Characters/Herta.h)
 add_executable(character_test test/characterTest.cpp src/BattleCore.cpp
-        src/ActionCore.cpp
-        include/ActionCore.h
         include/Characters/Herta.h)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
@@ -20,4 +16,5 @@ include_directories(./include)
 
 enable_testing()
 add_executable(battleCoreGameTest test/battleCoreMiniGame.cpp src/BattleCore.cpp
-        include/Characters/Herta.h)
+        include/Characters/Herta.h
+        include/utils.h)

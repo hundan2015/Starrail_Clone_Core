@@ -7,7 +7,7 @@ int main() {
     TrailBlazerPhysic c;
     auto battleState = c.getInitCharacterBattleState();
     cout << battleState->state;
-    auto result = c.skills[0]->hit(battleState, battleState);
+    auto result = c.skills[0]->hit(<#initializer #>, 0, 0);
     cout << result.hpDamage;
     // Battle core Test
     BattleCore battleCore;

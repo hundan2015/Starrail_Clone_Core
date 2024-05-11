@@ -7,6 +7,7 @@
 
 #include "Character.h"
 #include "Constants.h"
+#include "utils.h"
 struct ItsMagic : public Skill {
     std::array<float, 15> percent{1.2, 1.28, 1.36, 1.44, 1.52, 1.6,  1.7, 1.8,
                                   1.9, 2.0,  2.08, 2.16, 2.24, 2.32, 2.4};
@@ -15,13 +16,15 @@ struct ItsMagic : public Skill {
         property = ICE;
         skillGlobalId = getSkillNameId(SKILL_ITS_MAGIC);
     }
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
         float p = percent[level];
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
 
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
     }
     std::vector<int> getTargets(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
@@ -41,13 +44,14 @@ struct WhatAreYouLookingAt : public Skill {
         property = ICE;
         skillGlobalId = getSkillNameId(SKILL_WHAT_ARE_YOU_LOOKING_AT);
     }
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
         float p = percent[level];
-
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
     }
 };
 
@@ -60,13 +64,14 @@ struct OneTimeOffer : public Skill {
         property = ICE;
         skillGlobalId = getSkillNameId(SKILL_ONE_TIME_OFFER);
     }
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
         float p = percent[level];
-
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+        auto& attackerState = battleStates[attacker];
+        auto& targetState = battleStates[target];
+        return {attackerState->characterLocalId, targetState->characterLocalId,
+                (int)(p * targetState->characterProperty->attack), 0, 0};
     }
 };
 
@@ -74,30 +79,42 @@ struct FineIWillDoItMyself : public AppendATK {
     std::array<float, 15> percent{0.25,  0.265, 0.28,  0.295, 0.31,
                                   0.325, 0.343, 0.362, 0.381, 0.4,
                                   0.415, 0.43,  0.445, 0.46,  0.475};
+    std::array<bool, 9> isPerformed{false};
     FineIWillDoItMyself() {
         targetCount = 5;
         property = ICE;
         skillGlobalId = getSkillNameId(SKILL_FINE_I_WILL_DO_IT_MYSELF);
     }
-    HitInfo hit(CharacterBattleState* attackerState,
-                CharacterBattleState* attackedState) override {
-        float p = percent[level];
-
-        return {attackerState->characterLocalId,
-                attackedState->characterLocalId,
-                (int)(p * attackedState->characterProperty->attack), 0, 0};
+    HitInfo hit(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int attacker, int target) override {
+        //        float p = percent[level];
+        //        auto& attackerState = battleStates[attacker];
+        //        auto& targetState = battleStates[target];
+        //        return {attackerState->characterLocalId,
+        //        targetState->characterLocalId,
+        //                (int)(p * targetState->characterProperty->attack), 0,
+        //                0};
+        return hitGeneral<ICE, 15>(percent, level, battleStates, attacker,
+                                   target);
     }
     bool isPerform(std::array<std::unique_ptr<CharacterBattleState>, 9>& states,
                    std::array<const CharacterProperty*, 9>&
                        originalCharacterProperty) override {
+        bool result = false;
         for (int i = playerMaxCount; i < states.size(); ++i) {
             if (states[i] == nullptr) continue;
             if (states[i]->characterProperty->hp <=
-                0.5 * originalCharacterProperty[i]->hp) {
-                return true;
+                    0.5 * originalCharacterProperty[i]->hp &&
+                !isPerformed[i]) {
+                isPerformed[i] = true;
+                result = true;
+            } else if (states[i]->characterProperty->hp >=
+                       0.5 * originalCharacterProperty[i]->hp) {
+                isPerformed[i] = false;
             }
         }
-        return false;
+        return result;
     }
     std::vector<int> getTargets(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
@@ -123,6 +140,11 @@ struct Herta : public Character {
         auto appendAtk = std::make_unique<FineIWillDoItMyself>();
         appendATKSkills.push_back(appendAtk.get());
         skills.push_back(std::move(appendAtk));
+
+        basicCharacterProperty->hp = 129;
+        basicCharacterProperty->attack = 79;
+        basicCharacterProperty->defense = 54;
+        basicCharacterProperty->speed = 100;
     }
 };
 #endif  // STARRAIL_CORE_HERTA_H
