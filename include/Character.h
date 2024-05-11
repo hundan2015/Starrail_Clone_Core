@@ -139,6 +139,7 @@ struct HitInfo {
     float hpDamage;
     float weaknessDamage;
     float shelledDamage;
+    bool isCritical = false;
     std::vector<Buff> selfBuffs;
     std::vector<Buff> targetBuffs;
 };
@@ -198,6 +199,8 @@ class Character {
         characterGlobalId = 0;
         basicCharacterProperty =
             std::make_unique<CharacterProperty>(CharacterProperty());
+        basicCharacterProperty->criticalRate = 0.5;
+        basicCharacterProperty->criticalDamage = 0.5;
     }
     inline CharacterBattleState* getInitCharacterBattleState() {
         CharacterProperty property = getInitProperty();

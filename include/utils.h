@@ -9,12 +9,11 @@
 
 #include "Character.h"
 
-#define PROPERTY_HIT_RATE(X, Y)                                       \
-    template <>                                                       \
+#define PROPERTY_HIT_RATE(X, Y)                                    \
+    template <>                                                    \
     float getPropertyHitRate<X>(CharacterProperty * attackerState, \
                                 CharacterProperty * targetState) { \
-        return attackerState->Y##Damage *        \
-               targetState->Y##Resist;           \
+        return attackerState->Y##Damage * targetState->Y##Resist;  \
     }
 
 template <Property property>
@@ -59,8 +58,12 @@ HitInfo hitGeneral(
     }
     float damageResult =
         propertyRate * p * critical * attackerCurrentProperty.attack;
-    return {attackerState->characterLocalId, targetState->characterLocalId,
-            damageResult, 0, 0};
+    return {attackerState->characterLocalId,
+            targetState->characterLocalId,
+            damageResult,
+            0,
+            0,
+            critical > 1};
 }
 
 #endif  // STARRAIL_CORE_UTILS_H

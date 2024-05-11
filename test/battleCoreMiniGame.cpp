@@ -29,7 +29,7 @@ int main() {
     auto p1 = std::make_unique<Character>(TrailBlazerPhysic());
     auto p2 = std::make_unique<Character>(TrailBlazerPhysic());
     auto p3 = std::make_unique<Character>(Herta());
-    p3->eidolonLevel = 0;
+    p3->eidolonLevel = 6;
     registerPlayerToBattleCore(battleCore, p1.get(), 0);
     registerPlayerToBattleCore(battleCore, p3.get(), 1);
     registerPlayerToBattleCore(battleCore, p2.get(), 4);
@@ -51,9 +51,10 @@ int main() {
             auto& targetCharacter = battleCore.characters[i.target];
             auto& targetCharacterState =
                 battleCore.characterBattleStates[i.target];
+            string criticalString = i.isCritical ? ",暴击！" : "";
             cout << name << "打了"
                  << characterStrings[targetCharacter->characterGlobalId]
-                 << endl;
+                 << criticalString << endl;
             cout << characterStrings[targetCharacter->characterGlobalId]
                  << " HP:" << targetCharacterState->characterProperty->hp
                  << endl;
@@ -70,9 +71,10 @@ int main() {
                 auto& targetCharacter = battleCore.characters[i.target];
                 auto& targetCharacterState =
                     battleCore.characterBattleStates[i.target];
-                cout << tempName << "在追加攻击中打了"
+                string criticalString = i.isCritical ? ",暴击！" : "";
+                cout << tempName << "在追加攻击打了"
                      << characterStrings[targetCharacter->characterGlobalId]
-                     << endl;
+                     << criticalString << endl;
                 cout << characterStrings[targetCharacter->characterGlobalId]
                      << " HP:" << targetCharacterState->characterProperty->hp
                      << endl;
@@ -89,9 +91,10 @@ int main() {
                 auto& targetCharacter = battleCore.characters[i.target];
                 auto& targetCharacterState =
                     battleCore.characterBattleStates[i.target];
+                string criticalString = i.isCritical ? ",暴击！" : "";
                 cout << tempName << "在回合前打了"
                      << characterStrings[targetCharacter->characterGlobalId]
-                     << endl;
+                     << criticalString << endl;
                 cout << characterStrings[targetCharacter->characterGlobalId]
                      << " HP:" << targetCharacterState->characterProperty->hp
                      << endl;
