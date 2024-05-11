@@ -11,15 +11,15 @@
 
 #define PROPERTY_HIT_RATE(X, Y)                                       \
     template <>                                                       \
-    float getPropertyHitRate<X>(CharacterBattleState * attackerState, \
-                                CharacterBattleState * targetState) { \
-        return attackerState->getCurrentProperty().Y##Damage *        \
-               targetState->getCurrentProperty().Y##Resist;           \
+    float getPropertyHitRate<X>(CharacterProperty * attackerState, \
+                                CharacterProperty * targetState) { \
+        return attackerState->Y##Damage *        \
+               targetState->Y##Resist;           \
     }
 
 template <Property property>
-float getPropertyHitRate(CharacterBattleState* attackerState,
-                         CharacterBattleState* targetState) {
+float getPropertyHitRate(CharacterProperty* attackerState,
+                         CharacterProperty* targetState) {
     return 1.0f;
 }
 
@@ -47,15 +47,18 @@ HitInfo hitGeneral(
     float p = percent[level];
     auto& attackerState = battleStates[attacker];
     auto& targetState = battleStates[target];
-    float propertyRate =
-        getPropertyHitRate<property>(attackerState.get(), targetState.get());
+    auto attackerCurrentProperty = battleStates[attacker]->getCurrentProperty();
+    auto targetCurrentProperty = battleStates[target]->getCurrentProperty();
+    float propertyRate = getPropertyHitRate<property>(&attackerCurrentProperty,
+                                                      &targetCurrentProperty);
     float random = getRandomNumber();
     float critical = 1;
-    if (random < battleStates[attacker]->getCurrentProperty().criticalRate) {
-        critical += battleStates[attacker]->getCurrentProperty().criticalDamage;
+
+    if (random < attackerCurrentProperty.criticalRate) {
+        critical += attackerCurrentProperty.criticalDamage;
     }
-    float damageResult = propertyRate * p * critical *
-                             targetState->characterProperty->attack;
+    float damageResult =
+        propertyRate * p * critical * attackerCurrentProperty.attack;
     return {attackerState->characterLocalId, targetState->characterLocalId,
             damageResult, 0, 0};
 }

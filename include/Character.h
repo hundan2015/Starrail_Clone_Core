@@ -111,7 +111,7 @@ struct CharacterBattleState {
               std::make_unique<CharacterProperty>(basicCharacterProperty)),
           state(NORMAL) {}
 
-    void applyDamage(int hpDamage, int shelledDamage, int weaknessDamage) {
+    void applyDamage(float hpDamage, float shelledDamage, float weaknessDamage) {
         characterProperty->hp -= hpDamage;
         characterProperty->shelled -= shelledDamage;
         characterProperty->weakness -= weaknessDamage;
