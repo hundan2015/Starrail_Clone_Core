@@ -5,7 +5,8 @@
 #ifndef STARRAIL_CORE_UTILS_H
 #define STARRAIL_CORE_UTILS_H
 
-#include <random>
+#include <cstdlib>
+#include <ctime>
 
 #include "Character.h"
 
@@ -31,10 +32,12 @@ PROPERTY_HIT_RATE(QUANTUM, quantum);
 PROPERTY_HIT_RATE(IMAGINARY, imaginary);
 
 float getRandomNumber() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(0.0, 1.0);
-    float random_number = dis(gen);
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    // std::uniform_real_distribution<float> dis(0.0, 1.0);
+    // float random_number = dis(gen);
+    srand((unsigned)time(nullptr));
+    float random_number = (float)rand() / RAND_MAX;
     return random_number;
 }
 
@@ -44,26 +47,23 @@ HitInfo hitGeneral(
     std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
     int attacker, int target) {
     float p = percent[level];
-    auto& attackerState = battleStates[attacker];
-    auto& targetState = battleStates[target];
     auto attackerCurrentProperty = battleStates[attacker]->getCurrentProperty();
     auto targetCurrentProperty = battleStates[target]->getCurrentProperty();
     float propertyRate = getPropertyHitRate<property>(&attackerCurrentProperty,
                                                       &targetCurrentProperty);
     float random = getRandomNumber();
     float critical = 1;
-
+    const auto& targetDefense = targetCurrentProperty.defense;
+    float defenseRate =
+        1 - targetDefense / (targetDefense + 200 +
+                             10.f * (float)battleStates[attacker]->level);
     if (random < attackerCurrentProperty.criticalRate) {
         critical += attackerCurrentProperty.criticalDamage;
     }
-    float damageResult =
-        propertyRate * p * critical * attackerCurrentProperty.attack;
-    return {attackerState->characterLocalId,
-            targetState->characterLocalId,
-            damageResult,
-            0,
-            0,
-            critical > 1};
+    float damageResult = propertyRate * p * critical *
+                         attackerCurrentProperty.attack * defenseRate *
+                         attackerCurrentProperty.damageDecrease;
+    return {attacker, target, damageResult, 0, 0, critical > 1};
 }
 
 #endif  // STARRAIL_CORE_UTILS_H

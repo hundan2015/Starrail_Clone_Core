@@ -1,10 +1,12 @@
 //
 // Created by Symbolic on 2024/5/10.
 //
+
 #include <iostream>
 
 #include "BattleCore.h"
 #include "Characters/Herta.h"
+#include "Characters/Monsters/SilvermaneSoldier.h"
 #include "Characters/TrailBlazerPhysic.h"
 
 using std::cin;
@@ -27,9 +29,10 @@ int main() {
     BattleCore& battleCore = BattleCore::getInstance();
     // Add some players.
     auto p1 = std::make_unique<Character>(TrailBlazerPhysic());
-    auto p2 = std::make_unique<Character>(TrailBlazerPhysic());
+    auto p2 = std::make_unique<Character>(SilvermaneSolder());
     auto p3 = std::make_unique<Character>(Herta());
     p3->eidolonLevel = 6;
+    // p2->basicCharacterProperty->hp = 2000;
     registerPlayerToBattleCore(battleCore, p1.get(), 0);
     registerPlayerToBattleCore(battleCore, p3.get(), 1);
     registerPlayerToBattleCore(battleCore, p2.get(), 4);
@@ -52,7 +55,7 @@ int main() {
             auto& targetCharacterState =
                 battleCore.characterBattleStates[i.target];
             string criticalString = i.isCritical ? ",暴击！" : "";
-            cout << name << "打了"
+            cout << name << " 打了 "
                  << characterStrings[targetCharacter->characterGlobalId]
                  << criticalString << endl;
             cout << characterStrings[targetCharacter->characterGlobalId]
@@ -72,7 +75,7 @@ int main() {
                 auto& targetCharacterState =
                     battleCore.characterBattleStates[i.target];
                 string criticalString = i.isCritical ? ",暴击！" : "";
-                cout << tempName << "在追加攻击打了"
+                cout << tempName << " 在追加攻击打了 "
                      << characterStrings[targetCharacter->characterGlobalId]
                      << criticalString << endl;
                 cout << characterStrings[targetCharacter->characterGlobalId]
@@ -92,7 +95,7 @@ int main() {
                 auto& targetCharacterState =
                     battleCore.characterBattleStates[i.target];
                 string criticalString = i.isCritical ? ",暴击！" : "";
-                cout << tempName << "在回合前打了"
+                cout << tempName << " 在回合前打了 "
                      << characterStrings[targetCharacter->characterGlobalId]
                      << criticalString << endl;
                 cout << characterStrings[targetCharacter->characterGlobalId]

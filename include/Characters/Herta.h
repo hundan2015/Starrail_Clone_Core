@@ -34,9 +34,9 @@ struct NoOneCanBetrayMe : public Buff {
 };
 
 struct ItsMagic : public Skill {
-    std::array<float, 15> percent{1.2f,  1.28f, 1.36f, 1.44f, 1.52f,
-                                  1.6f,  1.7f,  1.8f,  1.9f,  2.0f,
-                                  2.08f, 2.16f, 2.24f, 2.32f, 2.4f};
+    static constexpr std::array<float, 15> percent{
+        1.2f, 1.28f, 1.36f, 1.44f, 1.52f, 1.6f,  1.7f, 1.8f,
+        1.9f, 2.0f,  2.08f, 2.16f, 2.24f, 2.32f, 2.4f};
     ItsMagic() {
         targetCount = 5;
         property = ICE;
@@ -64,8 +64,8 @@ struct ItsMagic : public Skill {
 };
 
 struct WhatAreYouLookingAt : public Skill {
-    std::array<float, 9> percent{0.5f, 0.6f, 0.7f, 0.8f, 0.9f,
-                                 1.0f, 1.1f, 1.2f, 1.3f};
+    static constexpr std::array<float, 9> percent{0.5f, 0.6f, 0.7f, 0.8f, 0.9f,
+                                                  1.0f, 1.1f, 1.2f, 1.3f};
     WhatAreYouLookingAt() {
         targetCount = 1;
         property = ICE;
@@ -89,9 +89,9 @@ struct WhatAreYouLookingAt : public Skill {
 };
 
 struct OneTimeOffer : public Skill {
-    std::array<float, 15> percent{0.5f,  0.55f,  0.6f,   0.65f,  0.7f,
-                                  0.75f, 0.812f, 0.875f, 0.937f, 1.0f,
-                                  1.05f, 1.1f,   1.15f,  1.2f,   1.25f};
+    static constexpr std::array<float, 15> percent{
+        0.5f,   0.55f, 0.6f,  0.65f, 0.7f,  0.75f, 0.812f, 0.875f,
+        0.937f, 1.0f,  1.05f, 1.1f,  1.15f, 1.2f,  1.25f};
     OneTimeOffer() {
         targetCount = 1;
         property = ICE;
@@ -106,9 +106,9 @@ struct OneTimeOffer : public Skill {
 };
 
 struct FineIWillDoItMyself : public AppendATK {
-    std::array<float, 15> percent{0.25f,  0.265f, 0.28f,  0.295f, 0.31f,
-                                  0.325f, 0.343f, 0.362f, 0.381f, 0.4f,
-                                  0.415f, 0.43f,  0.445f, 0.46f,  0.475f};
+    static constexpr std::array<float, 15> percent{
+        0.25f,  0.265f, 0.28f,  0.295f, 0.31f,  0.325f, 0.343f, 0.362f,
+        0.381f, 0.4f,   0.415f, 0.43f,  0.445f, 0.46f,  0.475f};
     std::array<bool, 9> isPerformed{false};
     FineIWillDoItMyself() {
         targetCount = 5;

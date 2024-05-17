@@ -2,9 +2,7 @@
 #define BATTLE_CORE_H
 #include <array>
 #include <list>
-#include <map>
 #include <memory>
-#include <tuple>
 #include <vector>
 
 #include "Character.h"

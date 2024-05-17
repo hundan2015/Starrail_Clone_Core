@@ -1,13 +1,12 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <cstddef>
 #define CharacterId int
 
 #include <array>
-#include <iostream>
 #include <memory>
 #include <vector>
+#include <list>
 
 const int playerMaxCount = 4;
 const int monsterMaxCount = 5;
@@ -28,8 +27,9 @@ struct CharacterProperty {
     float attack = 100;
     float defense = 100;
     float speed = 100;
-    float weakness = 1;
+    float toughness = 1;
     float shelled = 0;
+    float damageDecrease = 1;
     // Advance
     float criticalRate{};
     float criticalDamage{};
@@ -79,7 +79,7 @@ struct Buff {
     enum BuffType { BUFF, DEBUFF };
     bool isVisible{};
     bool isLong = false;
-    BuffType type;
+    BuffType type{BUFF};
     int life{};
     int level{};
     int buffGlobalId{};
@@ -99,6 +99,7 @@ struct CharacterBattleState {
     int characterGlobalId;
     int eidolonLevel{};
     float actionPoint{};
+    int level = 1;
     CharacterState state;
     std::unique_ptr<CharacterProperty> characterProperty;
     std::list<std::unique_ptr<Buff>> buffs = {};
@@ -111,15 +112,16 @@ struct CharacterBattleState {
               std::make_unique<CharacterProperty>(basicCharacterProperty)),
           state(NORMAL) {}
 
-    void applyDamage(float hpDamage, float shelledDamage, float weaknessDamage) {
+    void applyDamage(float hpDamage, float shelledDamage,
+                     float weaknessDamage) {
         characterProperty->hp -= hpDamage;
         characterProperty->shelled -= shelledDamage;
-        characterProperty->weakness -= weaknessDamage;
+        characterProperty->toughness -= weaknessDamage;
         if (characterProperty->hp <= 0) {
             state = DEAD;
             return;
         }
-        if (characterProperty->weakness <= 0) {
+        if (characterProperty->toughness <= 0) {
             state = BROKEN;
         }
     }
@@ -208,6 +210,7 @@ class Character {
         auto result = new CharacterBattleState(-1, characterGlobalId, property);
         result->weakpoints = weakpoints;
         result->eidolonLevel = eidolonLevel;
+        result->level = level;
         return result;
     }
     CharacterProperty getInitProperty() {
