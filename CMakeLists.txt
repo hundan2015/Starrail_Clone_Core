@@ -22,10 +22,9 @@ include_directories(./include)
 
 enable_testing()
 add_executable(battleCoreGameTest test/battleCoreMiniGame.cpp src/BattleCore.cpp
-        include/Characters/Herta.h
-        include/utils.h
-        include/commonBuffs.h
-        include/Characters/Monsters/SilvermaneSoldier.h
+        src/Characters/Herta.cpp
+        src/Characters/TrailBlazerPhysic.cpp
+        src/Characters/Monsters/SilvermaneSoldier.cpp
         )
 
 # if(MSVC)

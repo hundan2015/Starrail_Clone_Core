@@ -7,7 +7,7 @@
 #include "ConstantNameChinese.h"
 #include "ConstantNameEnglish.h"
 
-std::array<std::string, 100> skillStrings = {SKILL_FAREWELL_HIT,
+const std::array<std::string, 100> skillStrings = {SKILL_FAREWELL_HIT,
                                              SKILL_RIP_HOME_RUN,
                                              SKILL_STAR_DUST_ACE_SINGLE,
                                              SKILL_STAR_DUST_ACE_MULTI,
@@ -18,12 +18,12 @@ std::array<std::string, 100> skillStrings = {SKILL_FAREWELL_HIT,
 
 
 
-std::array<std::string, 100> characterStrings = {
+const std::array<std::string, 100> characterStrings = {
     CHARACTER_TRAIL_BLAZER_DESTRUCTION, CHARACTER_HERTA,
     CHARACTER_MOB_SILVERMANE_SOLDIER};
 
 
-std::array<std::string, 100> buffStrings = {BUFF_KEEP_THE_BALL_ROLLING,
+const std::array<std::string, 100> buffStrings = {BUFF_KEEP_THE_BALL_ROLLING,
                                             BUFF_NO_ONE_CAN_BETRAY_ME,
                                             BUFF_DEFENCE_DECREASE};
 

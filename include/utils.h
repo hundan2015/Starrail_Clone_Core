@@ -17,21 +17,7 @@
         return attackerState->Y##Damage * targetState->Y##Resist;  \
     }
 
-template <Property property>
-float getPropertyHitRate(CharacterProperty* attackerState,
-                         CharacterProperty* targetState) {
-    return 1.0f;
-}
-
-PROPERTY_HIT_RATE(PHYSICAL, physical);
-PROPERTY_HIT_RATE(ICE, ice);
-PROPERTY_HIT_RATE(FIRE, fire);
-PROPERTY_HIT_RATE(LIGHTNING, lightning);
-PROPERTY_HIT_RATE(WIND, wind);
-PROPERTY_HIT_RATE(QUANTUM, quantum);
-PROPERTY_HIT_RATE(IMAGINARY, imaginary);
-
-float getRandomNumber() {
+inline float getRandomNumber() {
     // std::random_device rd;
     // std::mt19937 gen(rd());
     // std::uniform_real_distribution<float> dis(0.0, 1.0);
@@ -39,6 +25,12 @@ float getRandomNumber() {
     srand((unsigned)time(nullptr));
     float random_number = (float)rand() / RAND_MAX;
     return random_number;
+}
+
+template <Property property>
+float getPropertyHitRate(CharacterProperty* attackerState,
+                         CharacterProperty* targetState) {
+    return 1.0f;
 }
 
 template <Property property, size_t percent_size>

@@ -8,6 +8,7 @@
 #include "Characters/Herta.h"
 #include "Characters/Monsters/SilvermaneSoldier.h"
 #include "Characters/TrailBlazerPhysic.h"
+#include "Constants.h"
 
 using std::cin;
 using std::cout;
