@@ -1,7 +1,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include <cstddef>
-#define LANG_ENGLISH
 #include <array>
 #include <cstring>
 #include <string>

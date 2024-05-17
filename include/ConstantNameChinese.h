@@ -1,3 +1,7 @@
+#ifndef LANG_ENGLISH
+#define LANG_CHINESE
+#endif
+
 #ifdef LANG_CHINESE
 
 #define SKILL_FAREWELL_HIT "再见安打"
