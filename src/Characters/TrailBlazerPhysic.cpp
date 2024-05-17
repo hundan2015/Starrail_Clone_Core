@@ -47,3 +47,11 @@ TrailBlazerPhysic::TrailBlazerPhysic() : Character() {
     basicCharacterProperty->defense = 62;
     basicCharacterProperty->speed = 100;
 }
+const std::array<float, 7> FarewellHit::percent = {0.5f, 0.6f, 0.7f, 0.8f,
+                                                   0.9f, 1.0f, 1.1f};
+const std::array<float, 12> RipHomeRun::percent = {
+    0.625f,    0.6975f,  0.75f,     0.8125f, 0.875f,  0.9375f,
+    1.015625f, 1.09375f, 1.171875f, 1.25f,   1.3125f, 1.375f};
+
+const std::array<float, 9> StardustAceSingle::percent = {
+    3.f, 3.15f, 3.3f, 3.45f, 3.6f, 3.75f, 3.937f, 4.125f, 4.312f};

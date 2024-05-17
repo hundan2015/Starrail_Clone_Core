@@ -4,9 +4,9 @@
 #define CharacterId int
 
 #include <array>
+#include <list>
 #include <memory>
 #include <vector>
-#include <list>
 
 const int playerMaxCount = 4;
 const int monsterMaxCount = 5;
@@ -83,8 +83,8 @@ struct Buff {
     int life{};
     int level{};
     int buffGlobalId{};
-    virtual void enhance(CharacterProperty& characterProperty) {}
-    void update() {}
+    virtual void enhance(CharacterProperty& characterProperty);
+    void update();
 };
 
 struct CharacterBattleState {
@@ -105,34 +105,11 @@ struct CharacterBattleState {
     std::list<std::unique_ptr<Buff>> buffs = {};
     std::vector<Property> weakpoints = {};
     CharacterBattleState(int localId, int globalId,
-                         CharacterProperty basicCharacterProperty)
-        : characterLocalId(localId),
-          characterGlobalId(globalId),
-          characterProperty(
-              std::make_unique<CharacterProperty>(basicCharacterProperty)),
-          state(NORMAL) {}
+                         CharacterProperty basicCharacterProperty);
 
-    void applyDamage(float hpDamage, float shelledDamage,
-                     float weaknessDamage) {
-        characterProperty->hp -= hpDamage;
-        characterProperty->shelled -= shelledDamage;
-        characterProperty->toughness -= weaknessDamage;
-        if (characterProperty->hp <= 0) {
-            state = DEAD;
-            return;
-        }
-        if (characterProperty->toughness <= 0) {
-            state = BROKEN;
-        }
-    }
-    CharacterState getState() const { return state; }
-    CharacterProperty getCurrentProperty() {
-        auto result = *characterProperty;
-        for (auto& i : buffs) {
-            i->enhance(result);
-        }
-        return result;
-    }
+    void applyDamage(float hpDamage, float shelledDamage, float weaknessDamage);
+    CharacterState getState() const;
+    CharacterProperty getCurrentProperty();
 };
 
 struct HitInfo {
@@ -142,8 +119,8 @@ struct HitInfo {
     float weaknessDamage;
     float shelledDamage;
     bool isCritical = false;
-    std::vector<Buff> selfBuffs;
-    std::vector<Buff> targetBuffs;
+    std::vector<Buff> selfBuffs{};
+    std::vector<Buff> targetBuffs{};
 };
 
 struct Skill {
@@ -153,15 +130,11 @@ struct Skill {
     int targetCount = 0;
     virtual HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
-        int attacker, int target) {
-        return {0, 0, 0, 0, 0};
-    }
+        int attacker, int target) = 0;
     virtual std::vector<int> getTargets(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
-        int aim) {
-        return {aim};
-    }
-    virtual void initState() {}
+        int aim);
+    virtual void initState();
 };
 
 struct BattleSequence {
@@ -195,33 +168,9 @@ class Character {
     std::vector<std::unique_ptr<Skill>> skills;
     std::vector<AppendATK*> appendATKSkills;
     std::vector<Property> weakpoints;
-    Character() {
-        level = 1;
-        exp = 0;
-        characterGlobalId = 0;
-        basicCharacterProperty =
-            std::make_unique<CharacterProperty>(CharacterProperty());
-        basicCharacterProperty->criticalRate = 0.5;
-        basicCharacterProperty->criticalDamage = 0.5;
-    }
-    inline CharacterBattleState* getInitCharacterBattleState() {
-        CharacterProperty property = getInitProperty();
-
-        auto result = new CharacterBattleState(-1, characterGlobalId, property);
-        result->weakpoints = weakpoints;
-        result->eidolonLevel = eidolonLevel;
-        result->level = level;
-        return result;
-    }
-    CharacterProperty getInitProperty() {
-        CharacterProperty property = *basicCharacterProperty;
-        for (const auto& costume : costumes) {
-            if (costume == nullptr) continue;
-            costume->enhance(property);
-        }
-        if (lightCone != nullptr) lightCone->enhance(property);
-        return property;
-    };
+    Character();
+    CharacterBattleState* getInitCharacterBattleState();
+    CharacterProperty getInitProperty();
 };
 
 #endif

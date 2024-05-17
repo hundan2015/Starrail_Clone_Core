@@ -1,5 +1,7 @@
 #include "Characters/Herta.h"
 
+#include <array>
+
 #include "BattleCore.h"
 #include "Constants.h"
 #include "utils.h"
@@ -153,3 +155,17 @@ KeepTheBallRolling::KeepTheBallRolling() {
 void KeepTheBallRolling::enhance(CharacterProperty& characterProperty) {
     characterProperty.criticalRate += (float)level * 0.03f;
 };
+const std::array<float, 15> ItsMagic::percent{1.2f,  1.28f, 1.36f, 1.44f, 1.52f,
+                                              1.6f,  1.7f,  1.8f,  1.9f,  2.0f,
+                                              2.08f, 2.16f, 2.24f, 2.32f, 2.4f};
+
+const std::array<float, 9> WhatAreYouLookingAt::percent = {
+    0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f};
+
+const std::array<float, 15> OneTimeOffer::percent = {
+    0.5f,   0.55f, 0.6f,  0.65f, 0.7f,  0.75f, 0.812f, 0.875f,
+    0.937f, 1.0f,  1.05f, 1.1f,  1.15f, 1.2f,  1.25f};
+
+const std::array<float, 15> FineIWillDoItMyself::percent{
+        0.25f,  0.265f, 0.28f,  0.295f, 0.31f,  0.325f, 0.343f, 0.362f,
+        0.381f, 0.4f,   0.415f, 0.43f,  0.445f, 0.46f,  0.475f};

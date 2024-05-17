@@ -5,10 +5,8 @@
 
 #include "Character.h"
 
-
 struct FarewellHit : public Skill {
-    static constexpr std::array<float, 7> percent = {0.5f, 0.6f, 0.7f, 0.8f,
-                                                     0.9f, 1.0f, 1.1f};
+    static const std::array<float, 7> percent;
     FarewellHit();
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
@@ -16,9 +14,7 @@ struct FarewellHit : public Skill {
 };
 
 struct RipHomeRun : public Skill {
-    static constexpr std::array<float, 12> percent = {
-        0.625f,    0.6975f,  0.75f,     0.8125f, 0.875f,  0.9375f,
-        1.015625f, 1.09375f, 1.171875f, 1.25f,   1.3125f, 1.375f};
+    static const std::array<float, 12> percent;
     RipHomeRun();
 
     HitInfo hit(
@@ -27,8 +23,7 @@ struct RipHomeRun : public Skill {
 };
 
 struct StardustAceSingle : public Skill {
-    static constexpr std::array<float, 9> percent = {
-        3.f, 3.15f, 3.3f, 3.45f, 3.6f, 3.75f, 3.937f, 4.125f, 4.312f};
+    static const std::array<float, 9> percent;
     StardustAceSingle();
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
