@@ -2,10 +2,18 @@
 #include <BattleCore.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <memory>
+#include <ostream>
 
 #include "Character.h"
+#include "Constants.h"
 #include "iostream"
+
+using std::cout;
+using std::string;
+// string endl = "\n";
+using std::endl;
 
 #ifdef DEBUG
 #define debugOut(x) std::cout << x << std::endl;
@@ -49,10 +57,10 @@ void BattleCore::tick(CharacterId attacker, int skillNum,
     }
 
     // Process append attacks.
-    for (int i = 0; i < characters.size(); ++i) {
+    for (size_t i = 0; i < characters.size(); ++i) {
         auto attackerCharacter = characters[i];
         if (attackerCharacter == nullptr) continue;
-        for (int j = 0; j < attackerCharacter->appendATKSkills.size(); ++j) {
+        for (size_t j = 0; j < attackerCharacter->appendATKSkills.size(); ++j) {
             auto& appendATK = attackerCharacter->appendATKSkills[j];
             if (!appendATK->isPerform(characterBattleStates,
                                       originalCharacterProperty))
@@ -101,7 +109,7 @@ int BattleCore::getNextAction() {
     float minActionPoint = 25600;
     int minActionPointPosition{};
     const float initJudgeActionPoint = 10000.0f / (float)judgeSpeed;
-    for (int i = 0; i < characterBattleStates.size(); ++i) {
+    for (size_t i = 0; i < characterBattleStates.size(); ++i) {
         if (characterBattleStates[i] == nullptr) continue;
         float& actionPoint = characterBattleStates[i]->actionPoint;
         if (actionPoint < minActionPoint) {
@@ -114,7 +122,7 @@ int BattleCore::getNextAction() {
         judgeActionPoint =
             ((initJudgeActionPoint + judgeActionPoint) - minActionPoint);
     }
-    for (int i = 0; i < characterBattleStates.size(); ++i) {
+    for (size_t i = 0; i < characterBattleStates.size(); ++i) {
         if (characterBattleStates[i] == nullptr) continue;
         float& actionPoint = characterBattleStates[i]->actionPoint;
         if (i == minActionPointPosition) {
@@ -152,3 +160,107 @@ BattleCore& BattleCore::getInstance() {
 }
 BattleCore::BattleCore() {}
 BattleCore::~BattleCore() {}
+
+// TODO: Currently, this function have some part of front end. These code should
+// be moved out.
+void BattleCore::singleAction(int action, int target) {
+    BattleCore& battleCore = BattleCore::getInstance();
+    int nextActionCharacterId = battleCore.getNextAction();
+    string name = characterStrings[battleCore.characters[nextActionCharacterId]
+                                       ->characterGlobalId];
+    cout << "Current action character id:" << nextActionCharacterId << endl;
+    cout << "Name:" << name << endl;
+    cout << "Skill Points:";
+    for (int i = 0; i < skillPoint; ++i) {
+        cout << "+";
+    }
+    cout << endl;
+    if (battleCore.characterBattleStates[target] == nullptr) {
+        cout << "Bad target!" << endl;
+        return;
+    }
+    if (battleCore.characters[nextActionCharacterId]->skills[action] ==
+        nullptr) {
+        cout << "Bad action!" << endl;
+        return;
+    }
+
+    if (nextActionCharacterId < playerMaxCount &&
+        battleCore.characters[nextActionCharacterId]
+                ->skills[action]
+                ->skillType == Skill::SKILL_NORMAL) {
+        battleCore.skillPoint++;
+        battleCore.skillPoint =
+            std::min(battleCore.skillPoint, battleCore.maxSkillPoint);
+    }
+
+    if (nextActionCharacterId < playerMaxCount &&
+        battleCore.characters[nextActionCharacterId]
+                ->skills[action]
+                ->skillType == Skill::SKILL_SKILL) {
+        if (battleCore.skillPoint < 0) {
+            cout << "Not enough skill point!" << endl;
+            return;
+        }
+        battleCore.skillPoint--;
+    }
+
+    battleCore.tick(nextActionCharacterId, action,
+                    battleCore.characters[nextActionCharacterId]
+                        ->skills[action]
+                        ->getTargets(battleCore.characterBattleStates, target));
+    auto& hitInfos = battleCore.getHitInfoInTick();
+    for (auto& i : hitInfos) {
+        auto& targetCharacter = battleCore.characters[i.target];
+        auto& targetCharacterState = battleCore.characterBattleStates[i.target];
+        string criticalString = i.isCritical ? ",critical!" : "";
+        cout << name << " hit "
+             << characterStrings[targetCharacter->characterGlobalId]
+             << criticalString << endl;
+        cout << characterStrings[targetCharacter->characterGlobalId]
+             << " HP:" << targetCharacterState->characterProperty->hp << endl;
+    }
+    if (battleCore.getGameState() != GOING) return;
+    battleCore.resetHitInfoInTick();
+
+    if (battleCore.battleCoreState == BEFORE_APPEND) {
+        auto appendATKInfo = battleCore.appendATKs.front();
+        auto tempName = characterStrings[appendATKInfo.attacker];
+        battleCore.tick(0, 0, {});
+        auto& appendHitInfos = battleCore.getHitInfoInTick();
+        for (auto& i : appendHitInfos) {
+            auto& targetCharacter = battleCore.characters[i.target];
+            auto& targetCharacterState =
+                battleCore.characterBattleStates[i.target];
+            string criticalString = i.isCritical ? ",critical!" : "";
+            cout << tempName << " have a append hit on "
+                 << characterStrings[targetCharacter->characterGlobalId]
+                 << criticalString << endl;
+            cout << characterStrings[targetCharacter->characterGlobalId]
+                 << " HP:" << targetCharacterState->characterProperty->hp
+                 << endl;
+        }
+        if (battleCore.getGameState() != GOING) return;
+        battleCore.resetHitInfoInTick();
+    }
+    if (battleCore.battleCoreState == BEFORE_ROUND) {
+        battleCore.tick(0, 0, {});
+        auto& appendHitInfos = battleCore.getHitInfoInTick();
+        for (auto& i : appendHitInfos) {
+            auto& attacker = battleCore.characters[i.attacker];
+            auto tempName = characterStrings[attacker->characterGlobalId];
+            auto& targetCharacter = battleCore.characters[i.target];
+            auto& targetCharacterState =
+                battleCore.characterBattleStates[i.target];
+            string criticalString = i.isCritical ? ",critical!" : "";
+            cout << tempName << " have a before round hit on "
+                 << characterStrings[targetCharacter->characterGlobalId]
+                 << criticalString << endl;
+            cout << characterStrings[targetCharacter->characterGlobalId]
+                 << " HP:" << targetCharacterState->characterProperty->hp
+                 << endl;
+        }
+        if (battleCore.getGameState() != GOING) return;
+        battleCore.resetHitInfoInTick();
+    }
+}

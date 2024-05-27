@@ -1,3 +1,6 @@
+#ifndef LANG_CHINESE
+#define LANG_ENGLISH
+#endif
 #ifdef LANG_ENGLISH
 
 #define SKILL_FAREWELL_HIT "Farewell hit"

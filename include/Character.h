@@ -124,7 +124,14 @@ struct HitInfo {
 };
 
 struct Skill {
+    enum SkillType {
+        SKILL_NORMAL,
+        SKILL_SKILL,
+        SKILL_APPEND_ATK,
+        SKILL_ULTIMATE
+    };
     Property property = PHYSICAL;
+    SkillType skillType = SKILL_NORMAL;
     int skillGlobalId = 0;
     int level = 0;
     int targetCount = 0;

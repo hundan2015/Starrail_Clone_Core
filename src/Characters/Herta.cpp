@@ -68,6 +68,7 @@ HitInfo FineIWillDoItMyself::hit(
 FineIWillDoItMyself::FineIWillDoItMyself() {
     targetCount = 5;
     property = ICE;
+    skillType = SKILL_APPEND_ATK;
     skillGlobalId = getSkillNameId(SKILL_FINE_I_WILL_DO_IT_MYSELF);
 }
 Herta::Herta() : Character() {
@@ -87,6 +88,7 @@ Herta::Herta() : Character() {
 OneTimeOffer::OneTimeOffer() {
     targetCount = 1;
     property = ICE;
+    skillType = SKILL_SKILL;
     skillGlobalId = getSkillNameId(SKILL_ONE_TIME_OFFER);
 }
 HitInfo OneTimeOffer::hit(
@@ -112,6 +114,7 @@ HitInfo WhatAreYouLookingAt::hit(
 WhatAreYouLookingAt::WhatAreYouLookingAt() {
     targetCount = 1;
     property = ICE;
+    skillType = SKILL_NORMAL;
     skillGlobalId = getSkillNameId(SKILL_WHAT_ARE_YOU_LOOKING_AT);
 }
 std::vector<int> ItsMagic::getTargets(
@@ -135,6 +138,7 @@ HitInfo ItsMagic::hit(
 ItsMagic::ItsMagic() {
     targetCount = 5;
     property = ICE;
+    skillType = SKILL_ULTIMATE;
     skillGlobalId = getSkillNameId(SKILL_ITS_MAGIC);
 }
 void NoOneCanBetrayMe::enhance(CharacterProperty& characterProperty) {

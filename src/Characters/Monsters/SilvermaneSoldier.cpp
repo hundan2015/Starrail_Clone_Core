@@ -1,4 +1,5 @@
 #include "Characters/Monsters/SilvermaneSoldier.h"
+#include "Character.h"
 #include "Constants.h"
 #include "commonBuffs.h"
 #include "utils.h"
@@ -6,6 +7,7 @@
 TirelessCharge::TirelessCharge() {
     targetCount = 1;
     property = PHYSICAL;
+    skillType = SKILL_NORMAL;
     skillGlobalId = getSkillNameId(SKILL_TIRELESS_CHARGE);
 }
 HitInfo TirelessCharge::hit(

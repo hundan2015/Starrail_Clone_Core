@@ -1,11 +1,15 @@
 #include "Characters/TrailBlazerPhysic.h"
 
+#include <cstddef>
+
+#include "Character.h"
 #include "Constants.h"
 #include "utils.h"
 
 FarewellHit::FarewellHit() {
     targetCount = 1;
     property = PHYSICAL;
+    skillType = SKILL_NORMAL;
     skillGlobalId = getSkillNameId(SKILL_FAREWELL_HIT);
 }
 HitInfo FarewellHit::hit(
@@ -17,6 +21,7 @@ HitInfo FarewellHit::hit(
 RipHomeRun::RipHomeRun() {
     targetCount = 3;
     property = PHYSICAL;
+    skillType = SKILL_SKILL;
     skillGlobalId = getSkillNameId(SKILL_RIP_HOME_RUN);
 }
 HitInfo RipHomeRun::hit(
@@ -25,9 +30,30 @@ HitInfo RipHomeRun::hit(
     return hitGeneral<PHYSICAL, 12>(percent, level, battleStates, attacker,
                                     target);
 }
+
+std::vector<int> RipHomeRun::getTargets(
+    std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+    int aim) {
+    std::vector<int> targets{aim};
+    for (int a = aim - 1; aim > playerMaxCount; aim--) {
+        if (battleStates[a] != nullptr) {
+            targets.push_back(a);
+            break;
+        }
+    }
+    for (int a = aim + 1; aim < battleStates.size(); aim++) {
+        if (battleStates[a] != nullptr) {
+            targets.push_back(a);
+            break;
+        }
+    }
+    return targets;
+}
+
 StardustAceSingle::StardustAceSingle() {
     targetCount = 1;
     property = PHYSICAL;
+    skillType = SKILL_ULTIMATE;
     skillGlobalId = getSkillNameId(SKILL_STAR_DUST_ACE_SINGLE);
 }
 HitInfo StardustAceSingle::hit(

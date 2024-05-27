@@ -7,6 +7,7 @@
 
 #include "Character.h"
 
+
 enum BattleCoreState {
     BEFORE_ROUND,
     BEFORE_ATTACK,
@@ -32,6 +33,8 @@ struct BattleCore {
     const std::vector<HitInfo>& getHitInfoInTick();
     void resetHitInfoInTick();
     int turnCounter = 0;
+    int skillPoint = 5;
+    int maxSkillPoint = 5;
     const int judgeSpeed = 100;
     float judgeActionPoint = 0;
 
@@ -40,6 +43,8 @@ struct BattleCore {
     int getNextAction();
 
     GameState getGameState();
+
+    void singleAction(int action, int target);
 
    private:
     BattleCore();

@@ -10,6 +10,7 @@
 
 #include "Character.h"
 
+
 #define PROPERTY_HIT_RATE(X, Y)                                    \
     template <>                                                    \
     float getPropertyHitRate<X>(CharacterProperty * attackerState, \

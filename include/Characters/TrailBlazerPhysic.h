@@ -20,6 +20,9 @@ struct RipHomeRun : public Skill {
     HitInfo hit(
         std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
         int attacker, int target) override;
+    std::vector<int> getTargets(
+        std::array<std::unique_ptr<CharacterBattleState>, 9>& battleStates,
+        int aim) override;
 };
 
 struct StardustAceSingle : public Skill {
