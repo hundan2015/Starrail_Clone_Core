@@ -21,10 +21,12 @@ include(CPack)
 include_directories(./include)
 
 enable_testing()
-add_executable(battleCoreGameTest test/battleCoreMiniGame.cpp src/BattleCore.cpp
+add_executable(battleCoreGameTest test/battleCoreMiniGame.cpp
+        src/BattleCore.cpp
         src/Characters/Herta.cpp
         src/Characters/TrailBlazerPhysic.cpp
         src/Characters/Monsters/SilvermaneSoldier.cpp
+        src/Character.cpp
         )
 
 # if(MSVC)
